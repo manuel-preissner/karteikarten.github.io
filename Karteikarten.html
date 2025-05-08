@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Karteikarten</title>
+  <style>
+    body { font-family: Arial, sans-serif; text-align: center; margin: 2em; }
+    #card { border: 1px solid #ccc; padding: 2em; margin: 2em auto; max-width: 400px; border-radius: 8px; display: none; }
+    button { margin: 0.5em; padding: 0.5em 1em; }
+    a { display: block; margin-top: 1em; }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.3.2/papaparse.min.js"></script>
+</head>
+<body>
+  <h1>Karteikarten</h1>
+  <div id="card">
+    <div id="term" style="font-size:1.5em; font-weight:bold;"></div>
+    <div id="definition" style="font-size:1.2em; margin-top:1em; display:none;"></div>
+    <div style="margin-top:1em;">
+      <button id="showBtn">Antwort anzeigen</button>
+      <button id="nextBtn">Nächste Karte</button>
+    </div>
+  </div>
+  <a href="start.html">← Zurück zur Startseite</a>
+
+  <script>
+    let cards = [];
+    let current = -1;
+
+    function getRandomIndex() {
+      return Math.floor(Math.random() * cards.length);
+    }
+
+    function showCard() {
+      current = getRandomIndex();
+      document.getElementById('term').textContent = cards[current].Fremdwort;
+      document.getElementById('definition').style.display = 'none';
+    }
+
+    Papa.parse('fremdwoerter_de_utf8sig.csv', {
+      download: true,
+      header: true,
+      delimiter: ';',
+      complete: function(results) {
+        cards = results.data.filter(r => r.Fremdwort && r.Bedeutung);
+        if (cards.length) {
+          document.getElementById('card').style.display = 'block';
+          showCard();
+        }
+      }
+    });
+
+    document.getElementById('showBtn').addEventListener('click', () => {
+      const def = document.getElementById('definition');
+      def.textContent = cards[current].Bedeutung;
+      def.style.display = 'block';
+    });
+
+    document.getElementById('nextBtn').addEventListener('click', showCard);
+  </script>
+</body>
+</html>
